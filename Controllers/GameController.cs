@@ -23,14 +23,13 @@ public class GameController : Controller
         if (game.IsRunning)
             return BadRequest("Game is already running");
 
-        string WorkingDirectory = $"/home/xxxtommystarkxxx/games/{game.FolderName}";
-        string script = ".venv/bin/gunicorn";
-        string arguments = $"server:app --bind 0.0.0.0:{game.Port} --daemon";
+        string WorkingDirectory = $"/home/xxxtommystarkxxx/games/{game.FolderName}/";
+        string script = $".venv/bin/gunicorn server:app --bind 0.0.0.0:{game.Port} --daemon";
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = script,
-            Arguments = arguments,
+            FileName = "bash",
+            Arguments = script,
             WorkingDirectory = WorkingDirectory,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

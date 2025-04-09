@@ -6,9 +6,11 @@ namespace launcher.Controllers;
 
 public class GameController : Controller
 {
-    public string Index(int id)
+    public IActionResult Index(int id)
     {
-        return id.ToString();
+        var game = GameRepository.GetGameById(id);
+
+        return View(game);
     }
 
     public IActionResult Start(int id)

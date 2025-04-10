@@ -5,10 +5,10 @@
     @if (!Model.IsRunning)
     {
         <a asp-controller="Game" asp-action="Start" asp-route-id=@Model.Id class="w-25">Запустить</a>
-        <a asp-action="Transition" asp-controller="Game" asp-route-id=@Model.Id>Зайти в игру</a>
     }
     else
     {
         <a asp-controller="Game" asp-action="Stop" asp-route-id=@Model.Id>Остановить</a>
+        <a asp-action="Transition" asp-controller="Game" asp-route-id=@Model.Id>Зайти в игру</a>
     }
 </div>

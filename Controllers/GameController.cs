@@ -60,7 +60,7 @@ public class GameController : Controller
         if (game == null)
             return NotFound();
 
-        if (game.IsRunning)
+        if (!game.IsRunning)
             return BadRequest("Game is already running");
 
         string stopingPath = Path.Combine(BASE_PATH, game.FolderName, "stop.sh");
@@ -76,7 +76,6 @@ public class GameController : Controller
             UseShellExecute = false,
             CreateNoWindow = true,
         };
-
         try
         {
             Process.Start(stoppingProcess);
@@ -88,5 +87,18 @@ public class GameController : Controller
         {
             return BadRequest("Error stopping game: " + ex.Message);
         }
+    }
+
+    public IActionResult Transition(int id)
+    {
+        var game = GameRepository.GetGameById(id);
+
+        if (game == null)
+            return NotFound();
+
+        if (!game.IsRunning)
+            return BadRequest("Game is not running");
+
+        return Redirect($"{BASE_IP}:{game.Port}");
     }
 }

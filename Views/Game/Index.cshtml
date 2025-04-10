@@ -1,10 +1,11 @@
 @model GameModel
 
 <h1>Game</h1>
-<div class="card d-flex p-3">
+<div class="card d-flex justify-content-between p-3">
     @if (!Model.IsRunning)
     {
         <a asp-controller="Game" asp-action="Start" asp-route-id=@Model.Id class="w-25">Запустить</a>
+        <a asp-action="Transition" asp-controller="Game" asp-route-id=@Model.Id>Зайти в игру</a>
     }
     else
     {

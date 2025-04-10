@@ -6,6 +6,9 @@ namespace launcher.Controllers;
 
 public class GameController : Controller
 {
+    private readonly string BASE_PATH = "/home/xxxtommystarkxxx/games/";
+    private readonly string BASE_IP = "http://158.160.142.78";
+
     public IActionResult Index(int id)
     {
         var game = GameRepository.GetGameById(id);
@@ -23,32 +26,31 @@ public class GameController : Controller
         if (game.IsRunning)
             return BadRequest("Game is already running");
 
-        string WorkingDirectory = $"/home/xxxtommystarkxxx/games/{game.FolderName}/";
-        string script = $".venv/bin/gunicorn server:app --bind 0.0.0.0:{game.Port} --daemon";
+        string runningScript = Path.Combine(BASE_PATH, game.FolderName, "run.sh");
 
-        var startInfo = new ProcessStartInfo
+        if (!System.IO.File.Exists(runningScript))
+            return NotFound("Game script not found");
+
+        var runningProcess = new ProcessStartInfo
         {
-            FileName = "bash",
-            Arguments = script,
-            WorkingDirectory = WorkingDirectory,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
+            FileName = "/bin/bash",
+            Arguments = runningScript,
+            WorkingDirectory = Path.GetDirectoryName(runningScript),
             UseShellExecute = false,
             CreateNoWindow = true,
         };
 
         try
         {
-            var process = Process.Start(startInfo);
-            game.PID = process.Id;
+            Process.Start(runningProcess);
             game.IsRunning = true;
+
+            return Redirect($"{BASE_IP}:{game.Port}");
         }
         catch (Exception ex)
         {
-            return Content("Ошибка запуска: " + ex.Message);
+            return BadRequest("Error starting game: " + ex.Message);
         }
-
-        return Redirect($"http://158.160.142.78:{game.Port}");
     }
 
     public IActionResult Stop(int id)
@@ -58,23 +60,33 @@ public class GameController : Controller
         if (game == null)
             return NotFound();
 
-        if (!game.IsRunning)
-            return BadRequest("Game is not running");
+        if (game.IsRunning)
+            return BadRequest("Game is already running");
+
+        string stopingPath = Path.Combine(BASE_PATH, game.FolderName, "stop.sh");
+
+        if (!System.IO.File.Exists(stopingPath))
+            return NotFound("Game script not found");
+
+        var stoppingProcess = new ProcessStartInfo
+        {
+            FileName = "/bin/bash",
+            Arguments = stopingPath,
+            WorkingDirectory = Path.GetDirectoryName(stopingPath),
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
 
         try
         {
-            if (game.PID.HasValue)
-            {
-                Process.GetProcessById(game.PID.Value).Kill();
-                game.IsRunning = false;
-                game.PID = null;
-            }
+            Process.Start(stoppingProcess);
+            game.IsRunning = false;
 
-            return Content("Game stopped successfully");
+            return Redirect($"{BASE_IP}:5000");
         }
         catch (Exception ex)
         {
-            return Content("Error stopping game: " + ex.Message);
+            return BadRequest("Error stopping game: " + ex.Message);
         }
     }
 }

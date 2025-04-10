@@ -7,5 +7,4 @@ class GameModel(int id, string name, int port, bool isRunning, string folderName
     public int Port { get; set; } = port;
     public bool IsRunning { get; set; } = isRunning;
     public string FolderName { get; set; } = folderName;
-    public int? PID { get; set; } = null;
 }
